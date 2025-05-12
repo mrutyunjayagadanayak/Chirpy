@@ -5,9 +5,16 @@ import (
 	"net/http"
 )
 
+func healthzHandler(resp http.ResponseWriter, req *http.Request) {
+	resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	resp.WriteHeader(200)
+	resp.Write([]byte("OK"))
+}
+
 func main() {
 	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir(".")))
+	mux.HandleFunc("/healthz", healthzHandler)
+	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("."))))
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: mux,
