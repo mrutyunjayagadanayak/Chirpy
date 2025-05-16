@@ -24,9 +24,10 @@ func healthzHandler(resp http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	var cfg apiConfig
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", healthzHandler)
-	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir("."))))
+	mux.Handle("/app/", cfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: mux,
