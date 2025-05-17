@@ -23,10 +23,15 @@ func healthzHandler(resp http.ResponseWriter, req *http.Request) {
 	resp.Write([]byte("OK"))
 }
 
+func (cfg *apiConfig) handlerResetCount(resp http.ResponseWriter, req *http.Request) {
+	cfg.fileserverHits.Store(0)
+}
+
 func main() {
 	var cfg apiConfig
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", healthzHandler)
+	mux.HandleFunc("/reset", cfg.handlerResetCount)
 	mux.Handle("/app/", cfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 	server := http.Server{
 		Addr:    ":8080",
