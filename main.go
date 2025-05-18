@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"sync/atomic"
 )
 
@@ -23,6 +24,10 @@ func healthzHandler(resp http.ResponseWriter, req *http.Request) {
 	resp.Write([]byte("OK"))
 }
 
+func (cfg *apiConfig) handlerDisplayHits(resp http.ResponseWriter, req *http.Request) {
+	resp.Write([]byte("Hits: " + strconv.Itoa(int(cfg.fileserverHits.Load()))))
+}
+
 func (cfg *apiConfig) handlerResetCount(resp http.ResponseWriter, req *http.Request) {
 	cfg.fileserverHits.Store(0)
 }
@@ -32,6 +37,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", healthzHandler)
 	mux.HandleFunc("/reset", cfg.handlerResetCount)
+	mux.HandleFunc("/metrics", cfg.handlerDisplayHits)
 	mux.Handle("/app/", cfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 	server := http.Server{
 		Addr:    ":8080",
