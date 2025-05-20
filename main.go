@@ -35,9 +35,9 @@ func (cfg *apiConfig) handlerResetCount(resp http.ResponseWriter, req *http.Requ
 func main() {
 	var cfg apiConfig
 	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", healthzHandler)
-	mux.HandleFunc("/reset", cfg.handlerResetCount)
-	mux.HandleFunc("/metrics", cfg.handlerDisplayHits)
+	mux.HandleFunc("GET /healthz", healthzHandler)
+	mux.HandleFunc("POST /reset", cfg.handlerResetCount)
+	mux.HandleFunc("GET /metrics", cfg.handlerDisplayHits)
 	mux.Handle("/app/", cfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 	server := http.Server{
 		Addr:    ":8080",
